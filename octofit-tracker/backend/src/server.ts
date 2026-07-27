@@ -16,15 +16,30 @@ const apiBaseUrl = codespaceName
   : 'http://localhost:8000';
 
 const frontendLocalOrigin = 'http://localhost:5173';
-const frontendCodespaceOrigin = codespaceName
-  ? `https://${codespaceName}-5173.app.github.dev`
-  : undefined;
+const codespaceOriginPattern = codespaceName
+  ? new RegExp(`^https://${codespaceName}-\\d+\\.app\\.github\\.dev$`)
+  : null;
 
-const allowedOrigins = [frontendLocalOrigin, frontendCodespaceOrigin].filter(
-  (origin): origin is string => Boolean(origin),
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (!origin) {
+        callback(null, true);
+        return;
+      }
+
+      const isLocalhost = origin === frontendLocalOrigin;
+      const isCodespaceOrigin = Boolean(codespaceOriginPattern?.test(origin));
+
+      if (isLocalhost || isCodespaceOrigin) {
+        callback(null, true);
+        return;
+      }
+
+      callback(new Error(`Origin ${origin} is not allowed by CORS`));
+    },
+  }),
 );
-
-app.use(cors({ origin: allowedOrigins }));
 app.use(express.json());
 
 app.get('/api', (_req, res) => {

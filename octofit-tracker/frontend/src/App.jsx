@@ -18,10 +18,10 @@ function resolveCodespaceName() {
   }
 
   const host = window.location.hostname
-  const codespaceSuffix = '-5173.app.github.dev'
+  const match = host.match(/^(?<codespace>.+)-\d+\.app\.github\.dev$/)
 
-  if (host.endsWith(codespaceSuffix)) {
-    return host.slice(0, -codespaceSuffix.length)
+  if (match?.groups?.codespace) {
+    return match.groups.codespace
   }
 
   return ''
