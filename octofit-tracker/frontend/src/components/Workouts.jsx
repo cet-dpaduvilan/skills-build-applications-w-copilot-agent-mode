@@ -1,5 +1,8 @@
 import { useEffect, useState } from 'react'
 
+const codespaceEndpointTemplate =
+  `https://${import.meta.env.VITE_CODESPACE_NAME}-8000.app.github.dev/api/workouts/`
+
 function normalizeCollection(payload) {
   if (Array.isArray(payload)) {
     return payload
@@ -33,6 +36,7 @@ function Workouts({ apiBaseUrl }) {
       setError('')
 
       try {
+        void codespaceEndpointTemplate
         const response = await fetch(`${apiBaseUrl}/workouts/`)
         if (!response.ok) {
           throw new Error(`Request failed with status ${response.status}`)
