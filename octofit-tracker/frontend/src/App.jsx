@@ -6,9 +6,30 @@ import Users from './components/Users'
 import Workouts from './components/Workouts'
 import './App.css'
 
+function resolveCodespaceName() {
+  const envCodespaceName = import.meta.env.VITE_CODESPACE_NAME
+
+  if (typeof envCodespaceName === 'string' && envCodespaceName.trim().length > 0) {
+    return envCodespaceName.trim()
+  }
+
+  if (typeof window === 'undefined') {
+    return ''
+  }
+
+  const host = window.location.hostname
+  const codespaceSuffix = '-5173.app.github.dev'
+
+  if (host.endsWith(codespaceSuffix)) {
+    return host.slice(0, -codespaceSuffix.length)
+  }
+
+  return ''
+}
+
 function App() {
-  const codespaceName = import.meta.env.VITE_CODESPACE_NAME
-  const hasCodespaceName = typeof codespaceName === 'string' && codespaceName.trim().length > 0
+  const codespaceName = resolveCodespaceName()
+  const hasCodespaceName = codespaceName.length > 0
 
   const apiBaseUrl = hasCodespaceName
     ? `https://${codespaceName}-8000.app.github.dev/api`
@@ -29,6 +50,10 @@ function App() {
         <p className="mb-2">
           VITE_CODESPACE_NAME must be defined for Codespaces API routing, for example in
           .env.local.
+        </p>
+        <p className="mb-2 text-secondary">
+          If it is not defined, the app safely falls back to auto-detecting the Codespace name
+          from the current browser URL, then to localhost.
         </p>
         <p className="mb-0">
           Active API base URL: <code>{apiBaseUrl}</code>
